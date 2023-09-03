@@ -90,13 +90,33 @@ onMounted(async () => {
 </script>
 
 <template>
-  <el-select v-model="selectModel" class="m-2" placeholder="50" @change="updateChart">
-    <el-option v-for="item in selectOptions" :key="item.value" :label="item.label" :value="item.value">
-    </el-option>
-  </el-select>
-  <div v-loading="isLoading">
-    <canvas v-if="chartData" ref="chart" />
+  <div class="miner-dashboard">
+    <el-select v-model="selectModel" class="m-2" placeholder="50" @change="updateChart">
+      <el-option v-for="item in selectOptions" :key="item.value" :label="item.label" :value="item.value">
+      </el-option>
+    </el-select>
+    <div v-loading="isLoading" class="miner-dashboard__chart-container">
+      <canvas
+        v-if="chartData"
+        ref="chart"
+        class="miner-dashboard__chart"
+      />
+    </div>
   </div>
 </template>
 
-<style scoped></style>
+<style lang="scss">
+@import "@/assets/colors.scss";
+
+.miner-dashboard {
+  padding-bottom: 2rem;
+
+  .miner-dashboard__chart-container {
+    position: relative;
+  }
+
+  .miner-dashboard__chart {
+    background: $base-white;
+  }
+}
+</style>
