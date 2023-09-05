@@ -9,8 +9,9 @@ from polydash.block_retriever.retriever import BlockRetriever
 from polydash.rating.polygon_live_rating import start_live_time_polygon_rating
 from polydash.rating.cardano_live_rating import start_live_time_cardano_rating
 from polydash.deanonymize.deanonymizer import start_deanonymizer
-from polydash.w3router_watcher.w3router_watcher import start_w3router_watcher
 import click
+
+from polydash.w3router_watcher.w3router_watcher import W3RouterWatcher
 
 # FastAPI set up
 app = FastAPI()
@@ -46,7 +47,8 @@ def start(settings) -> PolydashSettings:
     start_deanonymizer()
     start_live_time_polygon_rating()
     start_live_time_cardano_rating()
-    start_w3router_watcher()
+    W3RouterWatcher(s.w3_router).start()
+
 
     uvicorn.run(app, host=s.host, port=s.port)
 

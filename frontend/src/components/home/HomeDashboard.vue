@@ -40,7 +40,6 @@ const updateTableSort = async ({ prop, order }) => {
   }
   tableSort.value.order_by = prop;
   tableSort.value.sort_order = ORDER_MAP[order];
-  console.log('tableSort', tableSort.value);
   await fetchTableData();
 };
 
@@ -84,7 +83,8 @@ const percentToHSL = (percent) => {
 };
 
 const getViolationTooltip = ({ type, last_violation, violation_severity }) => {
-  return `${violationsMap[type].description}` +
+
+  return `${violationsMap[type].description }` +
     `${last_violation ? `\nLast violation: ${new Date(last_violation * 1000)}` : ''}` +
     `${violation_severity ? `\nSeverity: ${violation_severity}` : ''}`;
 };
@@ -109,6 +109,7 @@ onUnmounted(() => {
       v-loading="isLoading"
       class="home-dashboard__table"
       @sort-change="updateTableSort"
+      :default-sort="{prop: 'rank', order: 'ascending'}"
     >
       <el-table-column
         prop="rank"
@@ -159,6 +160,7 @@ onUnmounted(() => {
             v-for="(violation, index) in row.violations"
             :key="index + violation.type"
             class="home-dashboard__table-violation"
+            :class="{ 'el-tag--warning': violation.type === 'outlier' }"
           >
             <el-tooltip
               effect="dark"
@@ -202,7 +204,7 @@ onUnmounted(() => {
       v-if="tableData.length"
       class="home-dashboard__pagination"
       small
-      layout="prev, pager, next, jumper, sizes, total"
+      layout="prev, pager, next, jumper, ->, sizes, total"
       :total="totalTableEntriesCount"
       :page-sizes="[10, 20, 30, 40]"
       v-model:page-size="tableState.pageSize"
@@ -271,6 +273,12 @@ onUnmounted(() => {
         .el-tag {
           --el-tag-text-color: var(--color-text-danger);
           --el-tag-bg-color: var(--color-background-danger);
+          border: 0;
+        }
+        
+        .el-tag--warning {
+          --el-tag-text-color:var(--color-text-warning);
+          --el-tag-bg-color: var(--color-background-warning);
           border: 0;
         }
       }

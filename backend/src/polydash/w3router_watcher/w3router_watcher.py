@@ -4,17 +4,18 @@ import traceback
 import requests
 
 from pony import orm
-from urllib3.exceptions import MaxRetryError
 
 from polydash.log import LOGGER
 from polydash.model.risk import MinerRisk
 from polydash.model.deanon_node_by_tx import DeanonNodeByTx
 from polydash.model.deanon_node_by_block import DeanonNodeByBlock
 from polydash.model.peer_to_ip import PeerToIP
+from polydash.settings import W3RouterSettings
 
 W3RouterEventQueue = queue.Queue()
 
 TOP_NODES_LIST_SIZE = 10
+BOR_RPC_PORT = 8545
 
 
 class W3RouterWatcher:
@@ -23,10 +24,13 @@ class W3RouterWatcher:
     is received and, if there are any changes, push them into the W3Router itself
     """
 
-    last_top_nodes_list = []
+    def __init__(self, settings: W3RouterSettings = W3RouterSettings()):
+        self.last_top_nodes_list = []
+        self.settings = settings
+        self.last_send_failed = False
 
     def send_nodes_to_router(self):
-        url = "http://localhost/rpc/update_nodes"
+        url = self.settings.w3_rpc_url
         LOGGER.info(
             "Sending new list of nodes to the W3Router: {}".format(
                 self.last_top_nodes_list
@@ -38,8 +42,15 @@ class W3RouterWatcher:
                 LOGGER.error(
                     "W3Router has returned {} as status code".format(response.status_code)
                 )
-        except MaxRetryError:
+                return True
+        except requests.exceptions.ConnectionError:
             LOGGER.error("Can't connect to W3Router at {}".format(url))
+            return True
+        except Exception as e:
+            traceback.print_exc()
+            LOGGER.error("Exception when trying to connect to W3Router: {}".format(str(e)))
+            return True
+        return False
 
     def check_top_nodes(self):
         global TOP_NODES_LIST_SIZE
@@ -95,36 +106,35 @@ class W3RouterWatcher:
                 ip = node_ip[0].ip
                 if ip in new_top_nodes.values():
                     continue
-                new_top_nodes[current_priority] = ip
+                # We store original P2P connection node:port
+                # We must change it to look like normal RPC URL instead
+                new_top_nodes[current_priority] = f"http://{ip.split(':')[0]}:{BOR_RPC_PORT}"
                 current_priority += 1
 
                 # if we have gathered enough nodes information, finish
                 if len(new_top_nodes) >= TOP_NODES_LIST_SIZE:
                     break
 
-        if new_top_nodes != self.last_top_nodes_list:
+        if new_top_nodes != self.last_top_nodes_list or self.last_send_failed:
             self.last_top_nodes_list = new_top_nodes
-            self.send_nodes_to_router()
+            self.last_send_failed = self.send_nodes_to_router()
 
-
-def main_loop():
-    watcher = W3RouterWatcher()
-    while True:
-        try:
-            # get the block from some other thread; we're not really going to use the block number (at least for now),
-            # but we want to receive the notification itself
-            _ = W3RouterEventQueue.get()
-            with orm.db_session:
-                watcher.check_top_nodes()
-        except Exception as e:
-            traceback.print_exc()
-            LOGGER.error(
-                "exception when checking for the top nodes in W3Router Watcher happened: {}".format(
-                    str(e)
+    def main_loop(self):
+        while True:
+            try:
+                # get the block from some other thread; we're not really going to use the block number (at least for now),
+                # but we want to receive the notification itself
+                _ = W3RouterEventQueue.get()
+                with orm.db_session:
+                    self.check_top_nodes()
+            except Exception as e:
+                traceback.print_exc()
+                LOGGER.error(
+                    "exception when checking for the top nodes in W3Router Watcher happened: {}".format(
+                        str(e)
+                    )
                 )
-            )
 
-
-def start_w3router_watcher():
-    LOGGER.info("Starting W3Router Watcher thread...")
-    threading.Thread(target=main_loop, daemon=True).start()
+    def start(self):
+        LOGGER.info("Starting W3Router Watcher thread...")
+        threading.Thread(target=self.main_loop, daemon=True).start()
