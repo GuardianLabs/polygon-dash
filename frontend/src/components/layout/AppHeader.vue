@@ -1,4 +1,5 @@
 <script setup>
+import { store } from '@/store';
 import AppTabsBlockchains from '@/components/shared/AppTabsBlockchains.vue';
 </script>
 
@@ -9,13 +10,22 @@ import AppTabsBlockchains from '@/components/shared/AppTabsBlockchains.vue';
         Guardian Labs
       </router-link>
       <div class="guardian-header__central-navigation">
-        <router-link :to="{name: 'home', hash:'#about'}" class="guardian-header__link">
+        <router-link
+          :to="{name: 'home', hash: '#about', params: { blockchain: store.activeBlockchain }}"
+          class="guardian-header__link"
+        >
           About RPC
         </router-link>
-        <router-link :to="{name: 'home', hash:'#steps'}" class="guardian-header__link">
+        <router-link
+          :to="{name: 'home', hash: '#steps', params: { blockchain: store.activeBlockchain }}"
+          class="guardian-header__link"
+        >
           Set up Router
         </router-link>
-        <router-link :to="{name: 'home', hash:'#faq'}" class="guardian-header__link">
+        <router-link
+          :to="{name: 'home', hash: '#faq', params: { blockchain: store.activeBlockchain }}"
+          class="guardian-header__link"
+        >
           FAQ
         </router-link>
       </div>
@@ -86,7 +96,7 @@ import AppTabsBlockchains from '@/components/shared/AppTabsBlockchains.vue';
     }
 
     .guardian-header__switch {
-      display: none;
+      display: flex;
     }
   }
 }

@@ -1,8 +1,10 @@
 <script setup>
-import { onMounted, ref, shallowRef } from 'vue';
+import { onMounted, ref, shallowRef, watch } from 'vue';
+import Chart from 'chart.js/auto';
+
 import { fetchMinerDistribution } from '@/api/api-client';
 import { useRequest } from '@/use/useRequest';
-import Chart from 'chart.js/auto';
+import { store } from '@/store';
 
 const chart = ref(null);
 const chartData = ref(null);
@@ -11,17 +13,12 @@ const { sendRequest: getMinerDistribution, isLoading, data, error } = useRequest
 
 const pieChart = shallowRef(null)
 const fetchChartData = async () => {
-  if (isLoading.value) {
-    return;
-  }
-
   await getMinerDistribution();
   if (error.value) {
     return;
   }
   if (data.value) {
     chartData.value = data.value;
-    console.log('data', data.value);
   }
 };
 
@@ -36,7 +33,12 @@ onMounted(async () => {
       responsive: true,
     }
   });
-  console.log('pieChart', pieChart);
+});
+
+watch(() => store.activeBlockchain, async () => {
+  await fetchChartData();
+  pieChart.value.data.datasets = [chartData.value.pie_chart];
+  pieChart.value.update();
 });
 </script>
 

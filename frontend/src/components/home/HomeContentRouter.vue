@@ -1,6 +1,7 @@
 <script setup>
 import AppTabsBlockchains from '@/components/shared/AppTabsBlockchains.vue';
 import AppButton from '@/components/shared/AppButton.vue';
+import { store } from '@/store';
 </script>
 
 <template>
@@ -15,12 +16,18 @@ import AppButton from '@/components/shared/AppButton.vue';
       Sidestep MEV, censorship, and reordering effortlessly through Guardian RPC service.
     </p>
     <div class="home-content-router__buttons">
-      <router-link :to="{ name: 'home', hash: '#about' }" class="no-decoration">
+      <router-link
+        :to="{ name: 'home', hash: '#about', params: { blockchain: store.activeBlockchain } }"
+        class="home-content-router__links"
+      >
         <AppButton type="secondary">
           How it works
         </AppButton>
       </router-link>
-      <router-link :to="{ name: 'home', hash: '#steps' }" class="no-decoration">
+      <router-link
+        :to="{ name: 'home', hash: '#steps', params: { blockchain: store.activeBlockchain } }"
+        class="home-content-router__links"
+      >
         <AppButton>
           Set up Guardian Router
         </AppButton>
@@ -32,10 +39,6 @@ import AppButton from '@/components/shared/AppButton.vue';
 <style lang="scss">
 @import "@/assets/colors.scss";
 @import "@/assets/breakpoints.scss";
-
-.no-decoration {
-  text-decoration: none;
-}
 
 .home-content-router {
   display: flex;
@@ -51,7 +54,6 @@ import AppButton from '@/components/shared/AppButton.vue';
   }
 
   .home-content-router__chain-tabs {
-    display: none;
     width: 100%;
   }
 
@@ -65,6 +67,10 @@ import AppButton from '@/components/shared/AppButton.vue';
     button {
       width: 100%;
     }
+  }
+
+  .home-content-router__links {
+    text-decoration: none;
   }
 }
 
