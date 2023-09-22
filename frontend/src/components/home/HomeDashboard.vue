@@ -1,11 +1,12 @@
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import IconCopy from '@/assets/icons/icon-copy.svg';
 import { VIOLATIONS_MAP } from '@/utils/violations-map';
 import useCopyToClipboard from '@/use/useCopyToClipboard';
 import { useRequest } from '@/use/useRequest';
 import { fetchTable } from '@/api/api-client';
+import { store } from '@/store';
 
 const ORDER_MAP = {
   ascending: 'asc',
@@ -29,9 +30,9 @@ let timeoutId = null;
 
 const updateTableState = async (value, key) => {
   tableState[key] = value;
-  console.log('tableState', tableState);
   await fetchTableData();
 };
+
 const updateTableSort = async ({ prop, order }) => {
   if (!order) {
     tableSort.value = {};
@@ -58,7 +59,7 @@ const fetchTableData = async () => {
     ...tableSort.value,
   }]);
   if (error.value) {
-    console.log('error', error.value);
+    console.error(error.value);
     return;
   }
   if (data.value) {
@@ -89,7 +90,7 @@ const getViolationTooltip = ({ type, last_violation, violation_severity }) => {
     `${violation_severity ? `\nSeverity: ${violation_severity}` : ''}`;
 };
 const navigateToMinerPage = ({ address }) => {
-  router.push({ name: 'miner', params: { address } });
+  router.push({ name: 'miner', params: { address, blockchain: store.activeBlockchain } });
 };
 
 onMounted(async () => {
@@ -98,6 +99,10 @@ onMounted(async () => {
 
 onUnmounted(() => {
   clearTimeout(timeoutId);
+});
+
+watch(() => store.activeBlockchain, async () => {
+  await fetchTableData();
 });
 
 </script>
@@ -275,7 +280,7 @@ onUnmounted(() => {
           --el-tag-bg-color: var(--color-background-danger);
           border: 0;
         }
-        
+
         .el-tag--warning {
           --el-tag-text-color:var(--color-text-warning);
           --el-tag-bg-color: var(--color-background-warning);

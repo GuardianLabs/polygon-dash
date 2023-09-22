@@ -1,27 +1,33 @@
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 import IconMatic from '@/assets/icons/icon-matic.svg';
 import IconAda from '@/assets/icons/icon-ada.svg';
 import IconMaticDisabled from '@/assets/icons/icon-matic-disabled.svg';
 import IconAdaDisabled from '@/assets/icons/icon-ada-disabled.svg';
 
+import { store } from '@/store';
+
+const router = useRouter();
+
 const blockchains = [
   {
-    name: 'Polygon',
+    name: 'polygon',
     icon: IconMatic,
     iconDisabled: IconMaticDisabled,
   },
   {
-    name: 'Cardano',
+    name: 'cardano',
     icon: IconAda,
     iconDisabled: IconAdaDisabled,
   },
 ];
 
-const activeBlockchain = ref('Polygon');
+const activeBlockchain = computed(() => store.activeBlockchain);
 const handleBlockchainSelection = (name) => {
-  activeBlockchain.value = name;
+  store.changeActiveBlockchain(name);
+  router.push({ name: 'home', params: { blockchain: store.activeBlockchain } });
 };
 
 </script>
@@ -32,6 +38,7 @@ const handleBlockchainSelection = (name) => {
     v-for="chain in blockchains"
     class="app-tabs__button"
     :class="{ 'app-tabs__button--is-active': chain.name === activeBlockchain }"
+    :disabled="chain.name === activeBlockchain"
     @click="handleBlockchainSelection(chain.name)"
   >
     <component :is="chain.name === activeBlockchain ? chain.icon : chain.iconDisabled" />
@@ -69,6 +76,7 @@ const handleBlockchainSelection = (name) => {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    text-transform: capitalize;
 
     &--is-active {
       background: $base-white;

@@ -1,23 +1,39 @@
 <script setup>
+import { store } from '@/store';
 </script>
 
 <template>
   <footer class="guardian-footer">
     <nav>
-      <router-link to="/" class="guardian-footer__home-link">
+      <router-link
+        to="/"
+        class="guardian-footer__home-link"
+      >
         Guardian Labs
       </router-link>
       <div class="guardian-footer__central-navigation">
-        <router-link to="/" class="guardian-footer__link">
+        <router-link
+          to="/"
+          class="guardian-footer__link"
+        >
           Network monitor
         </router-link>
-        <router-link :to="{ name: 'home', hash: '#about' }" class="guardian-footer__link">
+        <router-link
+          :to="{ name: 'home', hash: '#about', params: { blockchain: store.activeBlockchain } }"
+          class="guardian-footer__link"
+        >
           About RPC
         </router-link>
-        <router-link :to="{ name: 'home', hash: '#steps' }" class="guardian-footer__link">
+        <router-link
+          :to="{ name: 'home', hash: '#steps', params: { blockchain: store.activeBlockchain } }"
+          class="guardian-footer__link"
+        >
           Set up Router
         </router-link>
-        <router-link :to="{ name: 'home', hash: '#faq' }" class="guardian-footer__link">
+        <router-link
+          :to="{ name: 'home', hash: '#faq', params: { blockchain: store.activeBlockchain } }"
+          class="guardian-footer__link"
+        >
           FAQ
         </router-link>
       </div>
@@ -34,6 +50,7 @@
   padding-bottom: 1rem;
   padding-top: 1rem;
   background: $gray-50;
+
   .guardian-footer__central-navigation {
     display: none;
   }
@@ -53,6 +70,7 @@
   .guardian-footer__switch {
     display: none;
   }
+
   .guardian-footer__copyright {
     color: $gray-500;
     font-size: 16px;
@@ -62,11 +80,6 @@
     justify-content: center;
     padding-right: 1rem;
     cursor: default;
-  }
-}
-
-@media (min-width: $breakpoint-tablet) {
-  .guardian-footer {
   }
 }
 
@@ -87,10 +100,11 @@
     }
 
     .guardian-footer__central-navigation {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
     }
+
     .guardian-footer__home-link {
       display: initial;
       color: $color-text-heading;

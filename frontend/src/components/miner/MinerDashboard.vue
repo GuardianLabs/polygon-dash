@@ -134,7 +134,6 @@ onMounted(async () => {
   });
 
   updateChartGradient();
-  console.log('myChart', myChart);
 });
 </script>
 

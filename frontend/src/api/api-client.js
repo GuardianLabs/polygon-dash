@@ -1,11 +1,21 @@
 import axios from 'axios'
 import { appConfig } from '@/utils/config'
+import { store } from '@/store'
 
-const { API_BASE_URL } = appConfig
+const { API_BASE_URL_POLYGON, API_BASE_URL_CARDANO, supportedBlockchains } = appConfig
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+const apiClientPolygon = axios.create({
+  baseURL: API_BASE_URL_POLYGON,
 })
+
+const apiClientCardano = axios.create({
+  baseURL: API_BASE_URL_CARDANO,
+})
+
+const apiClients = {
+  [supportedBlockchains.POLYGON]: apiClientPolygon,
+  [supportedBlockchains.CARDANO]: apiClientCardano,
+}
 
 const ENDPOINTS = {
   FETCH_TABLE: `/dash/miners`,
@@ -13,6 +23,9 @@ const ENDPOINTS = {
   FETCH_MINER_DISTRIBUTION: `/dash/trust-distribution`,
 }
 
-export const fetchTable = (args) => apiClient.get(ENDPOINTS.FETCH_TABLE, { params: args })
-export const fetchMiner = ({ address, params }) => apiClient.get(ENDPOINTS.FETCH_MINER(address), { params })
-export const fetchMinerDistribution = () => apiClient.get(ENDPOINTS.FETCH_MINER_DISTRIBUTION)
+export const fetchTable = (args) => apiClients[store.activeBlockchain]
+  .get(ENDPOINTS.FETCH_TABLE, { params: args })
+export const fetchMiner = ({ address, params }) => apiClients[store.activeBlockchain]
+  .get(ENDPOINTS.FETCH_MINER(address), { params })
+export const fetchMinerDistribution = () => apiClients[store.activeBlockchain]
+  .get(ENDPOINTS.FETCH_MINER_DISTRIBUTION)
