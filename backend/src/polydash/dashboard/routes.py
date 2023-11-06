@@ -135,7 +135,7 @@ async def get_miners_info(
     order_by: SortBy = Query(SortBy.rank, title="Sort By"),
     sort_order: SortOrder = Query(None, title="Sort Order"),
 ) -> DashboardData:
-    with db_session():
+    with db_session(optimistic=False):
         # TODO: this one is horribly inefficient,
         #  probably should be optimized by caching, etc.
         miners_by_risk = MinerRisk.select().order_by(desc(MinerRisk.risk))
