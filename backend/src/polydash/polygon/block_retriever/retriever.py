@@ -160,8 +160,10 @@ class BlockRetriever(threading.Thread):
         try:
             self.failure_count += 1
             block_json = self.get_block(block_number)
+            if block_json is None or "number" not in block_json:
+                return block_number
             block_number = int(block_json.get("number"), 16)
-            if block_json is None or block_number is None:
+            if block_number is None:
                 return block_number
             block_author = self.get_block_author(block_number)
             self.__process_single_block(block_json, block_author)
