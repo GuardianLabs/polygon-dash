@@ -4,4 +4,4 @@ postgres_connection:
   host: pg_polygon
 
 block_retriever:
-  block_rpc_url: https://polygon-mainnet.g.alchemy.com/v2/<TOKEN>
+  block_rpc_url: https://polygon-mainnet.g.alchemy.com/v2/KcLop5WjVXKCILBnq3JBJwDYyCHHyEdt

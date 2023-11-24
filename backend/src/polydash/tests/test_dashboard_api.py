@@ -2,7 +2,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from polydash.db import db
+from polydash.common.db import db
 from polydash.miners_ratings.model import MinerRisk
 from polydash.routes.routers import router
 
