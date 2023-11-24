@@ -11,7 +11,10 @@ from polydash.cardano.startup import routers_cardano, startup_sequence_cardano
 from polydash.common.db import db
 from polydash.common.db_start import start_db
 from polydash.common.log import LOGGER
-from polydash.common.upgrade import upgrade_from_v1
+from polydash.common.upgrades.from_v1 import upgrade_from_v1
+from polydash.common.upgrades.from_v2 import upgrade_from_v2
+
+
 from polydash.dashboard.settings import DashboardSettings
 from polydash.polygon.startup import routers_polygon, startup_sequence_polygon
 
@@ -64,7 +67,8 @@ def cardano(ctx):
 @click.pass_context
 def upgrade(ctx):
     db.bind(provider="postgres", **dict(ctx.obj.settings.postgres_connection))
-    upgrade_from_v1(db)
+    # upgrade_from_v1(db)
+    upgrade_from_v2(db)
 
 
 class Dashboard:

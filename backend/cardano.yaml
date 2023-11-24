@@ -4,4 +4,4 @@ postgres_connection:
   host: pg_cardano
   
 block_retriever:
-  block_rpc_url: <URL>
+  block_rpc_url: https://mempool.cardanoapi.io
