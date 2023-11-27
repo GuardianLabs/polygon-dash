@@ -13,8 +13,8 @@ class Peer(db.Entity, GetOrInsertMixin):
 class TransactionP2P(db.Entity, GetOrInsertMixin):
     _table_ = "tx_summary"
     tx_hash = orm.Required(str, index=True)
-    peer_id = orm.Required(Peer)
-    PrimaryKey(tx_hash, peer_id)
+    peer = orm.Required(Peer)
+    PrimaryKey(tx_hash, peer)
     tx_first_seen = orm.Optional(int, size=64)
 
     @classmethod
