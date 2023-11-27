@@ -34,9 +34,13 @@ class Deanonymizer(threading.Thread):
         # just increase the confidence of this mapping
         deanon_node.confidence += 1
 
+        # get peer_id from the P2P data
+        peer_object = block_from_p2p.peer
+        if (peer_id := peer_object.peer_id if peer_object else None) is None:
+            return
         # also put the information about IP of this peer into the DB if we don't remember it already
         PeerToIP.get_or_insert(
-            peer_id=block_from_p2p.peer, ip=block_from_p2p.peer_remote_addr
+            peer_id=peer_id, ip=block_from_p2p.peer_remote_addr
         )
 
     @db_session
@@ -50,10 +54,15 @@ class Deanonymizer(threading.Thread):
                 # we haven't seen it
                 continue
 
+
+            peer_object = tx_p2p.peer
+            if (peer_id := peer_object.peer_id if peer_object else None) is None:
+                continue
+            
             # if there is no such node is remembered by us yet, create it
             # and just increase the confidence of this mapping
             DeanonNodeByTx.get_or_insert(
-                signer_key=block.validated_by, peer_id=tx_p2p.peer_id
+                signer_key=block.validated_by, peer_id=peer_id
             ).confidence += 1
 
     def run(self):

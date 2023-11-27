@@ -43,7 +43,7 @@ def upgrade_from_v2(db):
     """)
     
     cur.execute("""
-        ALTER TABLE tx_summary RENAME COLUMN peer_id_temp TO peer_id;
+        ALTER TABLE tx_summary RENAME COLUMN peer_id_temp TO peer;
     """)
 
     cur.execute("""
