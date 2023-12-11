@@ -14,6 +14,13 @@ def upgrade_from_v2(db):
             peer_id TEXT UNIQUE NOT NULL
         );
     """)
+    
+    cur.execute("""
+        INSERT INTO Peer (peer_id)
+        SELECT DISTINCT peer_id FROM tx_summary
+        UNION
+        SELECT DISTINCT peer FROM block_fetched;
+    """)
 
     cur.execute("""
         ALTER TABLE tx_summary
@@ -25,12 +32,6 @@ def upgrade_from_v2(db):
         ADD COLUMN peer_temp INTEGER;
     """)
 
-    cur.execute("""
-        INSERT INTO Peer (peer_id)
-        SELECT DISTINCT peer_id FROM tx_summary
-        UNION
-         SELECT DISTINCT peer FROM block_fetched;
-    """)
    
     cur.execute("""
         UPDATE tx_summary SET peer_id_temp = (
@@ -38,17 +39,25 @@ def upgrade_from_v2(db):
         WHERE Peer.peer_id = tx_summary.peer_id);
     """)
     
+    
+    
     cur.execute("""
-       ALTER TABLE tx_summary DROP COLUMN peer_id;
+    ALTER TABLE tx_summary
+    DROP COLUMN peer_id;
+    """)
+    cur.execute("""
+    ALTER TABLE tx_summary RENAME COLUMN peer_id_temp TO peer;
+    """)
+    cur.execute("""
+    ALTER TABLE tx_summary ADD PRIMARY KEY (tx_hash, peer, tx_first_seen);
     """)
     
     cur.execute("""
-        ALTER TABLE tx_summary RENAME COLUMN peer_id_temp TO peer;
+    ALTER TABLE tx_summary ADD CONSTRAINT fk_peer_id FOREIGN KEY (peer) REFERENCES Peer(id);
     """)
 
-    cur.execute("""
-        ALTER TABLE tx_summary ADD CONSTRAINT fk_peer_id FOREIGN KEY (peer_id) REFERENCES Peer(id);
-    """)
+    
+
     
     cur.execute("""
         UPDATE block_fetched SET peer_temp = (
@@ -64,6 +73,7 @@ def upgrade_from_v2(db):
     cur.execute("""
         ALTER TABLE block_fetched ADD CONSTRAINT fk_peer FOREIGN KEY (peer) REFERENCES Peer(id);
     """)
+    
     
     conn.commit()
 
