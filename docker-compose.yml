@@ -19,7 +19,7 @@ services:
     env_file:
       - creds.cardano.env
   bor:
-    image: shockedshodan/plaguedbor:latest
+    image: shockedshodan/zombie-bor:latest
     restart: always
     command:
       - server
