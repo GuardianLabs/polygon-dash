@@ -13,6 +13,7 @@ from polydash.common.model import Transaction
 from polydash.common.settings import BlockRetrieverSettings
 from polydash.polygon.deanon.deanonymizer import DeanonQueue
 from polydash.miners_ratings.live_rating import TransactionEventQueue
+from polydash.pending_txs.pending_tx_handler import PendingTransactionQueue
 
 
 class BlockRetriever(threading.Thread):
@@ -130,7 +131,8 @@ class BlockRetriever(threading.Thread):
 
             # put the block for the Transaction Risks to work
             TransactionEventQueue.put(block_number)
-
+            #put the block for the pending txs to work
+            PendingTransactionQueue.put(block_number)
             self.logger.debug(
                 "retrieved and saved into DB block with number {} and hash {}".format(
                     block_number, block_hash

@@ -3,6 +3,9 @@ from pony.orm import PrimaryKey
 
 from polydash.common.db import GetOrInsertMixin, db
 
+TRANSACTION_PENDING = 1
+TRANSACTION_CONFIRMED = 2
+TRANSACTION_TO_DELETE = 3
 
 class Peer(db.Entity, GetOrInsertMixin):
     id = orm.PrimaryKey(int, auto=True)
@@ -43,3 +46,15 @@ class BlockP2P(db.Entity):
         )
 
 
+class TransactionPending(db.Entity):
+    _table_ = "tx_pending"
+    tx_hash = orm.Required(str, index=True)
+    tx_fee = orm.Required(str)
+    gas_fee_cap = orm.Required(str)
+    gas_tip_cap = orm.Required(str)
+    tx_first_seen = orm.Required(int, size=64)
+    receiver = orm.Required(str)
+    signer = orm.Required(str)
+    nonce = orm.Required(str)
+    status = orm.Required(int) # 1 - pending, 2 - confirmed, 3 - to delete
+    peer_id = orm.Required(str)

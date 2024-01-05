@@ -8,9 +8,16 @@ from pydantic import BaseModel
 from polydash.common.log import LOGGER
 from polydash.common.model import Block
 
+from polydash.miners_ratings.model import BlockDelta, MinerRisk, MinerRiskHistory
+from polydash.polygon.p2p_data.model import TransactionPending
+
+
 TRUST_SCORE_Y_AXIS = "y"
 VIOLATIONS_Y_AXIS = "num_violations"
 BIN_SIZE = 1
+OUTLIERS_COLOR = "#FFA450"
+TRUST_COLOR = "#32a852"
+
 
 CHARTJS_OPTIONS = {
     "scales": {
@@ -35,7 +42,6 @@ CHARTJS_OPTIONS = {
         }
     },
 }
-from polydash.miners_ratings.model import BlockDelta, MinerRisk, MinerRiskHistory
 
 dashboard_router = router = APIRouter(
     prefix="/dash",
@@ -78,10 +84,6 @@ class MinerBlocksData(BaseModel):
     risk: float
 
 
-OUTLIERS_COLOR = "#FFA450"
-TRUST_COLOR = "#32a852"
-
-
 class MinerChartDataset(BaseModel):
     fill: bool = False
     order: int
@@ -118,6 +120,25 @@ class MinersTrustDistribution(BaseModel):
     labels: List[str]
     pie_chart: PieChartDataset
 
+
+class TransactionPendingDisplayData(BaseModel):
+    hash: str
+    fee: str
+    gas_fee_cap: str
+    gas_tip_cap: str
+    receiver: str
+    signer: str
+    nonce: str
+    status: int
+    peer_id: str
+    tx_first_seen: int
+    
+    
+class PendingTxsDisplayData(BaseModel):
+    pending: List[TransactionPendingDisplayData]
+    in_block: List[TransactionPendingDisplayData]
+    to_delete: List[TransactionPendingDisplayData]
+    total: int  
 
 SORT_COLUMNS_MAP = {
     SortBy.blocks_created: MinerRisk.numblocks,
@@ -357,3 +378,59 @@ async def get_miner_trust_distribution() -> MinersTrustDistribution:
         )
 
     return result
+
+@router.get("/pending-txs")
+async def get_pending_txs() -> PendingTxsDisplayData:
+    with db_session():
+        pending_txs = TransactionPending.select().order_by(desc(TransactionPending.fee)).limit(250)
+        pending = []
+        in_block = []
+        to_delete = []
+        for tx in pending_txs:
+            if tx.status == 1:
+                pending.append(
+                    TransactionPendingDisplayData(
+                        hash=tx.tx_hash,
+                        fee=tx.tx_fee,
+                        gas_fee_cap=tx.gas_fee_cap,
+                        gas_tip_cap=tx.gas_tip_cap,
+                        receiver=tx.receiver,
+                        signer=tx.signer,
+                        nonce=tx.nonce,
+                        status=tx.status,
+                        peer_id=tx.peer_id,
+                        tx_first_seen=tx.tx_first_seen
+                    )
+                )
+            elif tx.status == 2:
+                in_block.append(
+                    TransactionPendingDisplayData(
+                        hash=tx.tx_hash,
+                        fee=tx.tx_fee,
+                        gas_fee_cap=tx.gas_fee_cap,
+                        gas_tip_cap=tx.gas_tip_cap,
+                        receiver=tx.receiver,
+                        signer=tx.signer,
+                        nonce=tx.nonce,
+                        status=tx.status,
+                        peer_id=tx.peer_id,
+                        tx_first_seen=tx.tx_first_seen
+                    )
+                )
+            elif tx.status == 3:
+                to_delete.append(
+                    TransactionPendingDisplayData(
+                        hash=tx.tx_hash,
+                        fee=tx.tx_fee,
+                        gas_fee_cap=tx.gas_fee_cap,
+                        gas_tip_cap=tx.gas_tip_cap,
+                        receiver=tx.receiver,
+                        signer=tx.signer,
+                        nonce=tx.nonce,
+                        status=tx.status,
+                        peer_id=tx.peer_id,
+                        tx_first_seen=tx.tx_first_seen
+                    )
+                )
+    return PendingTxsDisplayData(pending=pending, in_block=in_block, to_delete=to_delete, total=len(pending_txs))
+            

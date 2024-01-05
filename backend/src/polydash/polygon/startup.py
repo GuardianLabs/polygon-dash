@@ -7,12 +7,14 @@ from polydash.polygon.deanon.routes import deanon_router
 from polydash.miners_ratings.live_rating import PolygonRatingProcessor
 from polydash.miners_ratings.routes import transaction_risk_router
 from polydash.polygon.top_peers import top_peers_router
+from polydash.pending_txs.pending_tx_handler import PolygonPendingTransactionsProcessor
 
 
 def startup_sequence_polygon(s: DashboardSettings):
     BlockRetriever(daemon=True, settings=s.block_retriever).start()
     Deanonymizer(daemon=True).start()
     PolygonRatingProcessor(daemon=True).start()
+    PolygonPendingTransactionsProcessor(daemon=True).start()
 
 
 routers_polygon = [
