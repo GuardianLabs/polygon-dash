@@ -382,7 +382,7 @@ async def get_miner_trust_distribution() -> MinersTrustDistribution:
 @router.get("/pending-txs")
 async def get_pending_txs() -> PendingTxsDisplayData:
     with db_session():
-        pending_txs = TransactionPending.select().order_by(desc(TransactionPending.fee)).limit(250)
+        pending_txs = TransactionPending.select().order_by(desc(TransactionPending.tx_fee)).limit(250)
         pending = []
         in_block = []
         to_delete = []
