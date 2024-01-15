@@ -4,8 +4,12 @@ from polydash.common.settings import PostgresSettings
 from polydash.common.upgrade import check_db_version
 
 
+
+
 def start_db(settings: PostgresSettings, network_name=None):
     db.bind(provider="postgres", **dict(settings))
-    db.generate_mapping(create_tables=True)
+    db.generate_mapping(create_tables=False)
     check_db_version(network_name)
     LOGGER.info("database is successfully started up")
+
+
