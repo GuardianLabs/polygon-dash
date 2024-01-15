@@ -68,7 +68,7 @@ def cardano(ctx):
 def upgrade(ctx):
     db.bind(provider="postgres", **dict(ctx.obj.settings.postgres_connection))
     # upgrade_from_v1(db)
-    upgrade_from_v2(db)
+    # upgrade_from_v2(db)
 
 
 class Dashboard:
