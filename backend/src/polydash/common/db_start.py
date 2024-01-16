@@ -8,7 +8,7 @@ from polydash.common.upgrade import check_db_version
 
 def start_db(settings: PostgresSettings, network_name=None):
     db.bind(provider="postgres", **dict(settings))
-    db.generate_mapping(create_tables=False)
+    db.generate_mapping(create_tables=True)
     check_db_version(network_name)
     LOGGER.info("database is successfully started up")
 
