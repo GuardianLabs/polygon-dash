@@ -1,6 +1,9 @@
 <script setup>
 import { store } from '@/store';
+import { appConfig } from '@/utils/config';
 import AppTabsBlockchains from '@/components/shared/AppTabsBlockchains.vue';
+const { supportedBlockchains } = appConfig;
+console.log(store.activeBlockchain, supportedBlockchains.POLYGON);
 </script>
 
 <template>
@@ -28,6 +31,12 @@ import AppTabsBlockchains from '@/components/shared/AppTabsBlockchains.vue';
         >
           FAQ
         </router-link>
+        <router-link
+          v-show="store.activeBlockchain === supportedBlockchains.POLYGON"
+          :to="{name: 'pending-transactions', params: { blockchain: store.activeBlockchain }}"
+          class="guardian-header__link">
+          Pending Transactions
+        </router-link>        
       </div>
       <AppTabsBlockchains class="guardian-header__switch"/>
     </nav>

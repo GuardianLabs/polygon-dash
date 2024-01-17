@@ -37,7 +37,7 @@ import { store } from '@/store';
           FAQ
         </router-link>
       </div>
-      <a class="guardian-footer__copyright">© 2023 Guardian Labs</a>
+      <a class="guardian-footer__copyright">© 2024 Guardian Labs</a>
     </nav>
   </footer>
 </template>

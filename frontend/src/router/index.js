@@ -25,6 +25,11 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/MinerView.vue')
+    },
+    {
+      path: '/:blockchain/pending-transactions/',
+      name: 'pending-transactions',
+      component: () => import('../views/PendingTransactionsView.vue')
     }
   ],
   scrollBehavior (to) {

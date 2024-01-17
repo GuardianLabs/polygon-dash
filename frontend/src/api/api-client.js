@@ -21,6 +21,7 @@ const ENDPOINTS = {
   FETCH_TABLE: `/dash/miners`,
   FETCH_MINER: (address) => `/dash/miners/${address}`,
   FETCH_MINER_DISTRIBUTION: `/dash/trust-distribution`,
+  FETCH_PENDING_TRANSACTIONS: `/dash/pending-txs`,
 }
 
 export const fetchTable = (args) => apiClients[store.activeBlockchain]
@@ -29,3 +30,5 @@ export const fetchMiner = ({ address, params }) => apiClients[store.activeBlockc
   .get(ENDPOINTS.FETCH_MINER(address), { params })
 export const fetchMinerDistribution = () => apiClients[store.activeBlockchain]
   .get(ENDPOINTS.FETCH_MINER_DISTRIBUTION)
+export const fetchPendingTransactions = () => apiClients[store.activeBlockchain]
+  .get(ENDPOINTS.FETCH_PENDING_TRANSACTIONS)
